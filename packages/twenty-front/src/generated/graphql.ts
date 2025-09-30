@@ -71,9 +71,38 @@ export type AgentChatMessage = {
   createdAt: Scalars['DateTime'];
   files: Array<File>;
   id: Scalars['UUID'];
-  rawContent?: Maybe<Scalars['String']>;
+  parts: Array<AgentChatMessagePart>;
   role: Scalars['String'];
   threadId: Scalars['UUID'];
+};
+
+export type AgentChatMessagePart = {
+  __typename?: 'AgentChatMessagePart';
+  createdAt: Scalars['DateTime'];
+  errorDetails?: Maybe<Scalars['JSON']>;
+  errorMessage?: Maybe<Scalars['String']>;
+  fileFilename?: Maybe<Scalars['String']>;
+  fileMediaType?: Maybe<Scalars['String']>;
+  fileUrl?: Maybe<Scalars['String']>;
+  id: Scalars['UUID'];
+  messageId: Scalars['UUID'];
+  orderIndex: Scalars['Int'];
+  providerMetadata?: Maybe<Scalars['JSON']>;
+  reasoningContent?: Maybe<Scalars['String']>;
+  sourceDocumentFilename?: Maybe<Scalars['String']>;
+  sourceDocumentMediaType?: Maybe<Scalars['String']>;
+  sourceDocumentSourceId?: Maybe<Scalars['String']>;
+  sourceDocumentTitle?: Maybe<Scalars['String']>;
+  sourceUrlSourceId?: Maybe<Scalars['String']>;
+  sourceUrlTitle?: Maybe<Scalars['String']>;
+  sourceUrlUrl?: Maybe<Scalars['String']>;
+  state?: Maybe<Scalars['String']>;
+  textContent?: Maybe<Scalars['String']>;
+  toolCallId?: Maybe<Scalars['String']>;
+  toolInput?: Maybe<Scalars['JSON']>;
+  toolName?: Maybe<Scalars['String']>;
+  toolOutput?: Maybe<Scalars['JSON']>;
+  type: Scalars['String'];
 };
 
 export type AgentChatThread = {
@@ -171,20 +200,6 @@ export type AppTokenEdge = {
   node: AppToken;
 };
 
-export type Application = {
-  __typename?: 'Application';
-  createdAt: Scalars['DateTime'];
-  description?: Maybe<Scalars['String']>;
-  id: Scalars['UUID'];
-  label: Scalars['String'];
-  sourcePath: Scalars['String'];
-  sourceType: Scalars['String'];
-  standardId?: Maybe<Scalars['UUID']>;
-  updatedAt: Scalars['DateTime'];
-  version?: Maybe<Scalars['String']>;
-  workspaceId: Scalars['UUID'];
-};
-
 export type ApprovedAccessDomain = {
   __typename?: 'ApprovedAccessDomain';
   createdAt: Scalars['DateTime'];
@@ -254,6 +269,25 @@ export type AvailableWorkspacesAndAccessTokensOutput = {
   tokens: AuthTokenPair;
 };
 
+export type BarChartConfiguration = {
+  __typename?: 'BarChartConfiguration';
+  aggregateFieldMetadataId: Scalars['UUID'];
+  aggregateOperation: AggregateOperations;
+  color?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  filter?: Maybe<Scalars['JSON']>;
+  graphType: GraphType;
+  groupByFieldMetadataIdX: Scalars['UUID'];
+  groupByFieldMetadataIdY?: Maybe<Scalars['UUID']>;
+  omitNullValues?: Maybe<Scalars['Boolean']>;
+  orderByX: GraphOrderBy;
+  orderByY?: Maybe<GraphOrderBy>;
+  rangeMax?: Maybe<Scalars['Float']>;
+  rangeMin?: Maybe<Scalars['Float']>;
+  xAxisName?: Maybe<Scalars['String']>;
+  yAxisName?: Maybe<Scalars['String']>;
+};
+
 export type Billing = {
   __typename?: 'Billing';
   billingUrl?: Maybe<Scalars['String']>;
@@ -267,6 +301,24 @@ export type BillingEndTrialPeriodOutput = {
   hasPaymentMethod: Scalars['Boolean'];
   /** Updated subscription status */
   status?: Maybe<SubscriptionStatus>;
+};
+
+export type BillingLicensedProduct = BillingProductDto & {
+  __typename?: 'BillingLicensedProduct';
+  description: Scalars['String'];
+  images?: Maybe<Array<Scalars['String']>>;
+  metadata: BillingProductMetadata;
+  name: Scalars['String'];
+  prices?: Maybe<Array<BillingPriceLicensedDto>>;
+};
+
+export type BillingMeteredProduct = BillingProductDto & {
+  __typename?: 'BillingMeteredProduct';
+  description: Scalars['String'];
+  images?: Maybe<Array<Scalars['String']>>;
+  metadata: BillingProductMetadata;
+  name: Scalars['String'];
+  prices?: Maybe<Array<BillingPriceMeteredDto>>;
 };
 
 export type BillingMeteredProductUsageOutput = {
@@ -287,9 +339,8 @@ export enum BillingPlanKey {
 
 export type BillingPlanOutput = {
   __typename?: 'BillingPlanOutput';
-  baseProduct: BillingProduct;
-  meteredProducts: Array<BillingProduct>;
-  otherLicensedProducts: Array<BillingProduct>;
+  licensedProducts: Array<BillingLicensedProduct>;
+  meteredProducts: Array<BillingMeteredProduct>;
   planKey: BillingPlanKey;
 };
 
@@ -306,16 +357,7 @@ export type BillingPriceMeteredDto = {
   priceUsageType: BillingUsageType;
   recurringInterval: SubscriptionInterval;
   stripePriceId: Scalars['String'];
-  tiers?: Maybe<Array<BillingPriceTierDto>>;
-  tiersMode?: Maybe<BillingPriceTiersMode>;
-};
-
-export type BillingPriceOutput = {
-  __typename?: 'BillingPriceOutput';
-  amount: Scalars['Float'];
-  nickname: Scalars['String'];
-  recurringInterval: SubscriptionInterval;
-  stripePriceId: Scalars['String'];
+  tiers: Array<BillingPriceTierDto>;
 };
 
 export type BillingPriceTierDto = {
@@ -325,21 +367,19 @@ export type BillingPriceTierDto = {
   upTo?: Maybe<Scalars['Float']>;
 };
 
-/** The different billing price tiers modes */
-export enum BillingPriceTiersMode {
-  GRADUATED = 'GRADUATED',
-  VOLUME = 'VOLUME'
-}
-
-export type BillingPriceUnionDto = BillingPriceLicensedDto | BillingPriceMeteredDto;
-
 export type BillingProduct = {
   __typename?: 'BillingProduct';
   description: Scalars['String'];
   images?: Maybe<Array<Scalars['String']>>;
   metadata: BillingProductMetadata;
   name: Scalars['String'];
-  prices?: Maybe<Array<BillingPriceUnionDto>>;
+};
+
+export type BillingProductDto = {
+  description: Scalars['String'];
+  images?: Maybe<Array<Scalars['String']>>;
+  metadata: BillingProductMetadata;
+  name: Scalars['String'];
 };
 
 /** The different billing products available */
@@ -362,21 +402,35 @@ export type BillingSessionOutput = {
 
 export type BillingSubscription = {
   __typename?: 'BillingSubscription';
-  billingSubscriptionItems?: Maybe<Array<BillingSubscriptionItem>>;
+  billingSubscriptionItems?: Maybe<Array<BillingSubscriptionItemDto>>;
   currentPeriodEnd?: Maybe<Scalars['DateTime']>;
   id: Scalars['UUID'];
   interval?: Maybe<SubscriptionInterval>;
   metadata: Scalars['JSON'];
+  phases: Array<BillingSubscriptionSchedulePhase>;
   status: SubscriptionStatus;
 };
 
-export type BillingSubscriptionItem = {
-  __typename?: 'BillingSubscriptionItem';
-  billingProduct?: Maybe<BillingProduct>;
+export type BillingSubscriptionItemDto = {
+  __typename?: 'BillingSubscriptionItemDTO';
+  billingProduct: BillingProductDto;
   hasReachedCurrentPeriodCap: Scalars['Boolean'];
   id: Scalars['UUID'];
   quantity?: Maybe<Scalars['Float']>;
-  stripePriceId?: Maybe<Scalars['String']>;
+  stripePriceId: Scalars['String'];
+};
+
+export type BillingSubscriptionSchedulePhase = {
+  __typename?: 'BillingSubscriptionSchedulePhase';
+  end_date: Scalars['Float'];
+  items: Array<BillingSubscriptionSchedulePhaseItem>;
+  start_date: Scalars['Float'];
+};
+
+export type BillingSubscriptionSchedulePhaseItem = {
+  __typename?: 'BillingSubscriptionSchedulePhaseItem';
+  price: Scalars['String'];
+  quantity?: Maybe<Scalars['Float']>;
 };
 
 export type BillingTrialPeriodDto = {
@@ -387,8 +441,10 @@ export type BillingTrialPeriodDto = {
 
 export type BillingUpdateOutput = {
   __typename?: 'BillingUpdateOutput';
-  /** Boolean that confirms query was successful */
-  success: Scalars['Boolean'];
+  /** All billing subscriptions */
+  billingSubscriptions: Array<BillingSubscription>;
+  /** Current billing subscription */
+  currentBillingSubscription: BillingSubscription;
 };
 
 export enum BillingUsageType {
@@ -436,6 +492,8 @@ export type ClientAiModelConfig = {
 export type ComputeStepOutputSchemaInput = {
   /** Step JSON format */
   step: Scalars['JSON'];
+  /** Workflow version ID */
+  workflowVersionId?: InputMaybe<Scalars['UUID']>;
 };
 
 export enum ConfigSource {
@@ -466,6 +524,7 @@ export enum ConfigVariableType {
 
 export enum ConfigVariablesGroup {
   AnalyticsConfig = 'AnalyticsConfig',
+  AwsSesSettings = 'AwsSesSettings',
   BillingConfig = 'BillingConfig',
   CaptchaConfig = 'CaptchaConfig',
   CloudflareConfig = 'CloudflareConfig',
@@ -815,6 +874,8 @@ export type CreateWorkflowVersionEdgeInput = {
 };
 
 export type CreateWorkflowVersionStepInput = {
+  /** Step ID */
+  id?: InputMaybe<Scalars['String']>;
   /** Next step ID */
   nextStepId?: InputMaybe<Scalars['UUID']>;
   /** Parent step connection options */
@@ -827,6 +888,15 @@ export type CreateWorkflowVersionStepInput = {
   stepType: Scalars['String'];
   /** Workflow version ID */
   workflowVersionId: Scalars['UUID'];
+};
+
+export type CronTrigger = {
+  __typename?: 'CronTrigger';
+  createdAt: Scalars['DateTime'];
+  id: Scalars['UUID'];
+  serverlessFunctionId: Scalars['String'];
+  settings: Scalars['JSON'];
+  updatedAt: Scalars['DateTime'];
 };
 
 export type CursorPaging = {
@@ -848,6 +918,15 @@ export enum DatabaseEventAction {
   RESTORED = 'RESTORED',
   UPDATED = 'UPDATED'
 }
+
+export type DatabaseEventTrigger = {
+  __typename?: 'DatabaseEventTrigger';
+  createdAt: Scalars['DateTime'];
+  id: Scalars['UUID'];
+  serverlessFunctionId: Scalars['String'];
+  settings: Scalars['JSON'];
+  updatedAt: Scalars['DateTime'];
+};
 
 export type DateFilter = {
   eq?: InputMaybe<Scalars['Date']>;
@@ -974,6 +1053,29 @@ export type EmailPasswordResetLink = {
   success: Scalars['Boolean'];
 };
 
+export type EmailingDomain = {
+  __typename?: 'EmailingDomain';
+  createdAt: Scalars['DateTime'];
+  domain: Scalars['String'];
+  driver: EmailingDomainDriver;
+  id: Scalars['UUID'];
+  status: EmailingDomainStatus;
+  updatedAt: Scalars['DateTime'];
+  verificationRecords?: Maybe<Array<VerificationRecord>>;
+  verifiedAt?: Maybe<Scalars['DateTime']>;
+};
+
+export enum EmailingDomainDriver {
+  AWS_SES = 'AWS_SES'
+}
+
+export enum EmailingDomainStatus {
+  FAILED = 'FAILED',
+  PENDING = 'PENDING',
+  TEMPORARY_FAILURE = 'TEMPORARY_FAILURE',
+  VERIFIED = 'VERIFIED'
+}
+
 export type ExecuteServerlessFunctionInput = {
   /** Id of the serverless function to execute */
   id: Scalars['UUID'];
@@ -1004,6 +1106,8 @@ export enum FeatureFlagKey {
   IS_CORE_VIEW_ENABLED = 'IS_CORE_VIEW_ENABLED',
   IS_CORE_VIEW_SYNCING_ENABLED = 'IS_CORE_VIEW_SYNCING_ENABLED',
   IS_DATABASE_EVENT_TRIGGER_ENABLED = 'IS_DATABASE_EVENT_TRIGGER_ENABLED',
+  IS_DYNAMIC_SEARCH_FIELDS_ENABLED = 'IS_DYNAMIC_SEARCH_FIELDS_ENABLED',
+  IS_EMAILING_DOMAIN_ENABLED = 'IS_EMAILING_DOMAIN_ENABLED',
   IS_GROUP_BY_ENABLED = 'IS_GROUP_BY_ENABLED',
   IS_IMAP_SMTP_CALDAV_ENABLED = 'IS_IMAP_SMTP_CALDAV_ENABLED',
   IS_JSON_FILTER_ENABLED = 'IS_JSON_FILTER_ENABLED',
@@ -1129,11 +1233,13 @@ export type File = {
 };
 
 export enum FileFolder {
+  AgentChat = 'AgentChat',
   Attachment = 'Attachment',
   File = 'File',
   PersonPicture = 'PersonPicture',
   ProfilePicture = 'ProfilePicture',
   ServerlessFunction = 'ServerlessFunction',
+  ServerlessFunctionToDelete = 'ServerlessFunctionToDelete',
   WorkspaceLogo = 'WorkspaceLogo'
 }
 
@@ -1156,6 +1262,17 @@ export type FullName = {
   __typename?: 'FullName';
   firstName: Scalars['String'];
   lastName: Scalars['String'];
+};
+
+export type GaugeChartConfiguration = {
+  __typename?: 'GaugeChartConfiguration';
+  aggregateFieldMetadataId: Scalars['UUID'];
+  aggregateFieldMetadataIdTotal: Scalars['UUID'];
+  aggregateOperation: AggregateOperations;
+  aggregateOperationTotal: AggregateOperations;
+  description?: Maybe<Scalars['String']>;
+  filter?: Maybe<Scalars['JSON']>;
+  graphType: GraphType;
 };
 
 export type GetApiKeyDto = {
@@ -1191,6 +1308,23 @@ export type GetWebhookDto = {
   id: Scalars['UUID'];
 };
 
+/** Order by options for graph widgets */
+export enum GraphOrderBy {
+  FIELD_ASC = 'FIELD_ASC',
+  FIELD_DESC = 'FIELD_DESC',
+  VALUE_ASC = 'VALUE_ASC',
+  VALUE_DESC = 'VALUE_DESC'
+}
+
+/** Type of graph widget */
+export enum GraphType {
+  BAR = 'BAR',
+  GAUGE = 'GAUGE',
+  LINE = 'LINE',
+  NUMBER = 'NUMBER',
+  PIE = 'PIE'
+}
+
 export type GridPosition = {
   __typename?: 'GridPosition';
   column: Scalars['Float'];
@@ -1218,6 +1352,11 @@ export enum IdentityProviderType {
   OIDC = 'OIDC',
   SAML = 'SAML'
 }
+
+export type IframeConfiguration = {
+  __typename?: 'IframeConfiguration';
+  url: Scalars['String'];
+};
 
 export type ImapSmtpCaldavConnectionParameters = {
   __typename?: 'ImapSmtpCaldavConnectionParameters';
@@ -1344,6 +1483,25 @@ export type InvalidatePassword = {
   success: Scalars['Boolean'];
 };
 
+export type LineChartConfiguration = {
+  __typename?: 'LineChartConfiguration';
+  aggregateFieldMetadataId: Scalars['UUID'];
+  aggregateOperation: AggregateOperations;
+  color?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  filter?: Maybe<Scalars['JSON']>;
+  graphType: GraphType;
+  groupByFieldMetadataIdX: Scalars['UUID'];
+  groupByFieldMetadataIdY?: Maybe<Scalars['UUID']>;
+  omitNullValues?: Maybe<Scalars['Boolean']>;
+  orderByX: GraphOrderBy;
+  orderByY?: Maybe<GraphOrderBy>;
+  rangeMax?: Maybe<Scalars['Float']>;
+  rangeMin?: Maybe<Scalars['Float']>;
+  xAxisName?: Maybe<Scalars['String']>;
+  yAxisName?: Maybe<Scalars['String']>;
+};
+
 export type LinkMetadata = {
   __typename?: 'LinkMetadata';
   label: Scalars['String'];
@@ -1389,6 +1547,9 @@ export type Mutation = {
   assignRoleToAgent: Scalars['Boolean'];
   assignRoleToApiKey: Scalars['Boolean'];
   authorizeApp: AuthorizeApp;
+  cancelSwitchBillingInterval: BillingUpdateOutput;
+  cancelSwitchBillingPlan: BillingUpdateOutput;
+  cancelSwitchMeteredPrice: BillingUpdateOutput;
   checkCustomDomainValidRecords?: Maybe<DomainValidRecords>;
   checkPublicDomainValidRecords?: Maybe<DomainValidRecords>;
   checkoutSession: BillingSessionOutput;
@@ -1405,6 +1566,7 @@ export type Mutation = {
   createCoreViewSort: CoreViewSort;
   createDatabaseConfigVariable: Scalars['Boolean'];
   createDraftFromWorkflowVersion: WorkflowVersion;
+  createEmailingDomain: EmailingDomain;
   createFile: File;
   createOIDCIdentityProvider: SetupSsoOutput;
   createObjectEvent: Analytics;
@@ -1432,6 +1594,7 @@ export type Mutation = {
   deleteCoreViewSort: Scalars['Boolean'];
   deleteCurrentWorkspace: Workspace;
   deleteDatabaseConfigVariable: Scalars['Boolean'];
+  deleteEmailingDomain: Scalars['Boolean'];
   deleteFile: File;
   deleteOneAgent: Agent;
   deleteOneField: Field;
@@ -1489,6 +1652,7 @@ export type Mutation = {
   runWorkflowVersion: WorkflowRun;
   saveImapSmtpCaldavAccount: ImapSmtpCaldavConnectionSuccess;
   sendInvitations: SendInvitationsOutput;
+  setMeteredSubscriptionPrice: BillingUpdateOutput;
   signIn: AvailableWorkspacesAndAccessTokensOutput;
   signUp: AvailableWorkspacesAndAccessTokensOutput;
   signUpInNewWorkspace: SignUpOutput;
@@ -1496,9 +1660,9 @@ export type Mutation = {
   skipBookOnboardingStep: OnboardingStepSuccess;
   skipSyncEmailOnboardingStep: OnboardingStepSuccess;
   submitFormStep: Scalars['Boolean'];
-  switchToEnterprisePlan: BillingUpdateOutput;
-  switchToYearlyInterval: BillingUpdateOutput;
-  syncApplication: Application;
+  switchBillingPlan: BillingUpdateOutput;
+  switchSubscriptionInterval: BillingUpdateOutput;
+  syncApplication: Scalars['Boolean'];
   trackAnalytics: Analytics;
   updateApiKey?: Maybe<ApiKey>;
   updateCoreView: CoreView;
@@ -1517,8 +1681,8 @@ export type Mutation = {
   updatePageLayout: PageLayout;
   updatePageLayoutTab: PageLayoutTab;
   updatePageLayoutWidget: PageLayoutWidget;
+  updatePageLayoutWithTabsAndWidgets: PageLayout;
   updatePasswordViaResetToken: InvalidatePassword;
-  updateSubscriptionItemPrice: BillingUpdateOutput;
   updateWebhook?: Maybe<Webhook>;
   updateWorkflowRunStep: WorkflowAction;
   updateWorkflowVersionPositions: Scalars['Boolean'];
@@ -1535,6 +1699,7 @@ export type Mutation = {
   upsertPermissionFlags: Array<PermissionFlag>;
   userLookupAdminPanel: UserLookup;
   validateApprovedAccessDomain: ApprovedAccessDomain;
+  verifyEmailingDomain: EmailingDomain;
   verifyTwoFactorAuthenticationMethodForAuthenticatedUser: VerifyTwoFactorAuthenticationMethodOutput;
 };
 
@@ -1644,6 +1809,12 @@ export type MutationCreateDatabaseConfigVariableArgs = {
 
 export type MutationCreateDraftFromWorkflowVersionArgs = {
   input: CreateDraftFromWorkflowVersionInput;
+};
+
+
+export type MutationCreateEmailingDomainArgs = {
+  domain: Scalars['String'];
+  driver: EmailingDomainDriver;
 };
 
 
@@ -1767,6 +1938,11 @@ export type MutationDeleteCoreViewSortArgs = {
 
 export type MutationDeleteDatabaseConfigVariableArgs = {
   key: Scalars['String'];
+};
+
+
+export type MutationDeleteEmailingDomainArgs = {
+  id: Scalars['String'];
 };
 
 
@@ -2047,6 +2223,11 @@ export type MutationSendInvitationsArgs = {
 };
 
 
+export type MutationSetMeteredSubscriptionPriceArgs = {
+  priceId: Scalars['String'];
+};
+
+
 export type MutationSignInArgs = {
   captchaToken?: InputMaybe<Scalars['String']>;
   email: Scalars['String'];
@@ -2189,14 +2370,15 @@ export type MutationUpdatePageLayoutWidgetArgs = {
 };
 
 
-export type MutationUpdatePasswordViaResetTokenArgs = {
-  newPassword: Scalars['String'];
-  passwordResetToken: Scalars['String'];
+export type MutationUpdatePageLayoutWithTabsAndWidgetsArgs = {
+  id: Scalars['String'];
+  input: UpdatePageLayoutWithTabsInput;
 };
 
 
-export type MutationUpdateSubscriptionItemPriceArgs = {
-  priceId: Scalars['String'];
+export type MutationUpdatePasswordViaResetTokenArgs = {
+  newPassword: Scalars['String'];
+  passwordResetToken: Scalars['String'];
 };
 
 
@@ -2285,8 +2467,25 @@ export type MutationValidateApprovedAccessDomainArgs = {
 };
 
 
+export type MutationVerifyEmailingDomainArgs = {
+  id: Scalars['String'];
+};
+
+
 export type MutationVerifyTwoFactorAuthenticationMethodForAuthenticatedUserArgs = {
   otp: Scalars['String'];
+};
+
+export type NumberChartConfiguration = {
+  __typename?: 'NumberChartConfiguration';
+  aggregateFieldMetadataId: Scalars['UUID'];
+  aggregateOperation: AggregateOperations;
+  color?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  filter?: Maybe<Scalars['JSON']>;
+  format?: Maybe<Scalars['String']>;
+  graphType: GraphType;
+  label?: Maybe<Scalars['String']>;
 };
 
 export type Object = {
@@ -2487,7 +2686,7 @@ export enum PageLayoutType {
 
 export type PageLayoutWidget = {
   __typename?: 'PageLayoutWidget';
-  configuration?: Maybe<Scalars['JSON']>;
+  configuration?: Maybe<WidgetConfiguration>;
   createdAt: Scalars['DateTime'];
   deletedAt?: Maybe<Scalars['DateTime']>;
   gridPosition: GridPosition;
@@ -2511,6 +2710,7 @@ export enum PermissionFlagType {
   API_KEYS_AND_WEBHOOKS = 'API_KEYS_AND_WEBHOOKS',
   DATA_MODEL = 'DATA_MODEL',
   EXPORT_CSV = 'EXPORT_CSV',
+  IMPERSONATE = 'IMPERSONATE',
   IMPORT_CSV = 'IMPORT_CSV',
   ROLES = 'ROLES',
   SECURITY = 'SECURITY',
@@ -2519,6 +2719,18 @@ export enum PermissionFlagType {
   WORKSPACE = 'WORKSPACE',
   WORKSPACE_MEMBERS = 'WORKSPACE_MEMBERS'
 }
+
+export type PieChartConfiguration = {
+  __typename?: 'PieChartConfiguration';
+  aggregateFieldMetadataId: Scalars['UUID'];
+  aggregateOperation: AggregateOperations;
+  color?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  filter?: Maybe<Scalars['JSON']>;
+  graphType: GraphType;
+  groupByFieldMetadataId: Scalars['UUID'];
+  orderBy: GraphOrderBy;
+};
 
 export type PlaceDetailsResultDto = {
   __typename?: 'PlaceDetailsResultDto';
@@ -2614,6 +2826,7 @@ export type Query = {
   getCoreViewSorts: Array<CoreViewSort>;
   getCoreViews: Array<CoreView>;
   getDatabaseConfigVariable: ConfigVariable;
+  getEmailingDomains: Array<EmailingDomain>;
   getIndicatorHealthStatus: AdminPanelHealthServiceData;
   getMeteredProductsUsage: Array<BillingMeteredProductUsageOutput>;
   getPageLayout?: Maybe<PageLayout>;
@@ -2637,10 +2850,9 @@ export type Query = {
   getTimelineThreadsFromPersonId: TimelineThreadsWithTotal;
   index: Index;
   indexMetadatas: IndexConnection;
-  listAvailableMeteredBillingPrices: Array<BillingPriceOutput>;
+  listPlans: Array<BillingPlanOutput>;
   object: Object;
   objects: ObjectConnection;
-  plans: Array<BillingPlanOutput>;
   search: SearchResultConnection;
   validatePasswordResetToken: ValidatePasswordResetToken;
   versionInfo: VersionInfo;
@@ -3203,9 +3415,7 @@ export type SubscriptionOnDbEventArgs = {
 };
 
 export enum SubscriptionInterval {
-  Day = 'Day',
   Month = 'Month',
-  Week = 'Week',
   Year = 'Year'
 }
 
@@ -3425,12 +3635,36 @@ export type UpdatePageLayoutTabInput = {
   title?: InputMaybe<Scalars['String']>;
 };
 
+export type UpdatePageLayoutTabWithWidgetsInput = {
+  id: Scalars['UUID'];
+  position: Scalars['Float'];
+  title: Scalars['String'];
+  widgets: Array<UpdatePageLayoutWidgetWithIdInput>;
+};
+
 export type UpdatePageLayoutWidgetInput = {
   configuration?: InputMaybe<Scalars['JSON']>;
   gridPosition?: InputMaybe<GridPositionInput>;
   objectMetadataId?: InputMaybe<Scalars['UUID']>;
   title?: InputMaybe<Scalars['String']>;
   type?: InputMaybe<WidgetType>;
+};
+
+export type UpdatePageLayoutWidgetWithIdInput = {
+  configuration?: InputMaybe<Scalars['JSON']>;
+  gridPosition: GridPositionInput;
+  id: Scalars['UUID'];
+  objectMetadataId?: InputMaybe<Scalars['UUID']>;
+  pageLayoutTabId: Scalars['UUID'];
+  title: Scalars['String'];
+  type: WidgetType;
+};
+
+export type UpdatePageLayoutWithTabsInput = {
+  name: Scalars['String'];
+  objectMetadataId?: InputMaybe<Scalars['UUID']>;
+  tabs: Array<UpdatePageLayoutTabWithWidgetsInput>;
+  type: PageLayoutType;
 };
 
 export type UpdateRoleInput = {
@@ -3670,6 +3904,14 @@ export type ValidatePasswordResetToken = {
   id: Scalars['UUID'];
 };
 
+export type VerificationRecord = {
+  __typename?: 'VerificationRecord';
+  key: Scalars['String'];
+  priority?: Maybe<Scalars['Float']>;
+  type: Scalars['String'];
+  value: Scalars['String'];
+};
+
 export type VerifyTwoFactorAuthenticationMethodOutput = {
   __typename?: 'VerifyTwoFactorAuthenticationMethodOutput';
   success: Scalars['Boolean'];
@@ -3746,6 +3988,8 @@ export type Webhook = {
   workspaceId: Scalars['UUID'];
 };
 
+export type WidgetConfiguration = BarChartConfiguration | GaugeChartConfiguration | IframeConfiguration | LineChartConfiguration | NumberChartConfiguration | PieChartConfiguration;
+
 export enum WidgetType {
   FIELDS = 'FIELDS',
   GRAPH = 'GRAPH',
@@ -3806,10 +4050,8 @@ export type WorkflowVersion = {
 
 export type WorkflowVersionStepChanges = {
   __typename?: 'WorkflowVersionStepChanges';
-  createdStep?: Maybe<WorkflowAction>;
-  deletedStepIds?: Maybe<Array<Scalars['String']>>;
-  stepsNextStepIds?: Maybe<Scalars['JSON']>;
-  triggerNextStepIds?: Maybe<Array<Scalars['String']>>;
+  stepsDiff?: Maybe<Scalars['JSON']>;
+  triggerDiff?: Maybe<Scalars['JSON']>;
 };
 
 export type Workspace = {
@@ -3960,6 +4202,16 @@ export type SearchQueryVariables = Exact<{
 
 
 export type SearchQuery = { __typename?: 'Query', search: { __typename?: 'SearchResultConnection', edges: Array<{ __typename?: 'SearchResultEdge', cursor: string, node: { __typename?: 'SearchRecord', recordId: any, objectNameSingular: string, label: string, imageUrl?: string | null, tsRankCD: number, tsRank: number } }>, pageInfo: { __typename?: 'SearchResultPageInfo', hasNextPage: boolean, endCursor?: string | null } } };
+
+export type PageLayoutWidgetFragmentFragment = { __typename?: 'PageLayoutWidget', id: any, title: string, type: WidgetType, objectMetadataId?: any | null, createdAt: string, updatedAt: string, deletedAt?: string | null, pageLayoutTabId: any, gridPosition: { __typename?: 'GridPosition', column: number, columnSpan: number, row: number, rowSpan: number }, configuration?: { __typename?: 'BarChartConfiguration', graphType: GraphType, aggregateFieldMetadataId: any, aggregateOperation: AggregateOperations, groupByFieldMetadataIdX: any, orderByX: GraphOrderBy, groupByFieldMetadataIdY?: any | null, orderByY?: GraphOrderBy | null, omitNullValues?: boolean | null, xAxisName?: string | null, yAxisName?: string | null, rangeMin?: number | null, rangeMax?: number | null, filter?: any | null } | { __typename?: 'GaugeChartConfiguration', graphType: GraphType, aggregateFieldMetadataId: any, aggregateOperation: AggregateOperations, aggregateOperationTotal: AggregateOperations, aggregateFieldMetadataIdTotal: any, description?: string | null, filter?: any | null } | { __typename?: 'IframeConfiguration', url: string } | { __typename?: 'LineChartConfiguration', graphType: GraphType, aggregateFieldMetadataId: any, aggregateOperation: AggregateOperations, groupByFieldMetadataIdX: any, orderByX: GraphOrderBy, groupByFieldMetadataIdY?: any | null, orderByY?: GraphOrderBy | null, filter?: any | null } | { __typename?: 'NumberChartConfiguration', graphType: GraphType, aggregateFieldMetadataId: any, aggregateOperation: AggregateOperations, description?: string | null, filter?: any | null } | { __typename?: 'PieChartConfiguration', graphType: GraphType, groupByFieldMetadataId: any, aggregateFieldMetadataId: any, aggregateOperation: AggregateOperations, orderBy: GraphOrderBy, filter?: any | null } | null };
+
+export type UpdatePageLayoutWithTabsAndWidgetsMutationVariables = Exact<{
+  id: Scalars['String'];
+  input: UpdatePageLayoutWithTabsInput;
+}>;
+
+
+export type UpdatePageLayoutWithTabsAndWidgetsMutation = { __typename?: 'Mutation', updatePageLayoutWithTabsAndWidgets: { __typename?: 'PageLayout', id: any, name: string, type: PageLayoutType, objectMetadataId?: any | null, createdAt: string, updatedAt: string, deletedAt?: string | null, tabs?: Array<{ __typename?: 'PageLayoutTab', id: any, title: string, position: number, pageLayoutId: any, createdAt: string, updatedAt: string, widgets?: Array<{ __typename?: 'PageLayoutWidget', id: any, title: string, type: WidgetType, objectMetadataId?: any | null, createdAt: string, updatedAt: string, deletedAt?: string | null, pageLayoutTabId: any, gridPosition: { __typename?: 'GridPosition', column: number, columnSpan: number, row: number, rowSpan: number }, configuration?: { __typename?: 'BarChartConfiguration', graphType: GraphType, aggregateFieldMetadataId: any, aggregateOperation: AggregateOperations, groupByFieldMetadataIdX: any, orderByX: GraphOrderBy, groupByFieldMetadataIdY?: any | null, orderByY?: GraphOrderBy | null, omitNullValues?: boolean | null, xAxisName?: string | null, yAxisName?: string | null, rangeMin?: number | null, rangeMax?: number | null, filter?: any | null } | { __typename?: 'GaugeChartConfiguration', graphType: GraphType, aggregateFieldMetadataId: any, aggregateOperation: AggregateOperations, aggregateOperationTotal: AggregateOperations, aggregateFieldMetadataIdTotal: any, description?: string | null, filter?: any | null } | { __typename?: 'IframeConfiguration', url: string } | { __typename?: 'LineChartConfiguration', graphType: GraphType, aggregateFieldMetadataId: any, aggregateOperation: AggregateOperations, groupByFieldMetadataIdX: any, orderByX: GraphOrderBy, groupByFieldMetadataIdY?: any | null, orderByY?: GraphOrderBy | null, filter?: any | null } | { __typename?: 'NumberChartConfiguration', graphType: GraphType, aggregateFieldMetadataId: any, aggregateOperation: AggregateOperations, description?: string | null, filter?: any | null } | { __typename?: 'PieChartConfiguration', graphType: GraphType, groupByFieldMetadataId: any, aggregateFieldMetadataId: any, aggregateOperation: AggregateOperations, orderBy: GraphOrderBy, filter?: any | null } | null }> | null }> | null } };
 
 export type OnDbEventSubscriptionVariables = Exact<{
   input: OnDbEventInput;
@@ -4237,6 +4489,78 @@ export type FindOneCoreViewSortQueryVariables = Exact<{
 
 export type FindOneCoreViewSortQuery = { __typename?: 'Query', getCoreViewSort?: { __typename?: 'CoreViewSort', id: any, fieldMetadataId: any, direction: ViewSortDirection, viewId: any } | null };
 
+export const PageLayoutWidgetFragmentFragmentDoc = gql`
+    fragment PageLayoutWidgetFragment on PageLayoutWidget {
+  id
+  title
+  type
+  objectMetadataId
+  createdAt
+  updatedAt
+  deletedAt
+  gridPosition {
+    column
+    columnSpan
+    row
+    rowSpan
+  }
+  configuration {
+    ... on BarChartConfiguration {
+      graphType
+      aggregateFieldMetadataId
+      aggregateOperation
+      groupByFieldMetadataIdX
+      orderByX
+      groupByFieldMetadataIdY
+      orderByY
+      omitNullValues
+      xAxisName
+      yAxisName
+      rangeMin
+      rangeMax
+      filter
+    }
+    ... on LineChartConfiguration {
+      graphType
+      aggregateFieldMetadataId
+      aggregateOperation
+      groupByFieldMetadataIdX
+      orderByX
+      groupByFieldMetadataIdY
+      orderByY
+      filter
+    }
+    ... on PieChartConfiguration {
+      graphType
+      groupByFieldMetadataId
+      aggregateFieldMetadataId
+      aggregateOperation
+      orderBy
+      filter
+    }
+    ... on NumberChartConfiguration {
+      graphType
+      aggregateFieldMetadataId
+      aggregateOperation
+      description
+      filter
+    }
+    ... on GaugeChartConfiguration {
+      graphType
+      aggregateFieldMetadataId
+      aggregateOperation
+      aggregateOperationTotal
+      aggregateFieldMetadataIdTotal
+      description
+      filter
+    }
+    ... on IframeConfiguration {
+      url
+    }
+  }
+  pageLayoutTabId
+}
+    `;
 export const ViewFieldFragmentFragmentDoc = gql`
     fragment ViewFieldFragment on CoreViewField {
   id
@@ -4388,6 +4712,57 @@ export function useSearchLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Sea
 export type SearchQueryHookResult = ReturnType<typeof useSearchQuery>;
 export type SearchLazyQueryHookResult = ReturnType<typeof useSearchLazyQuery>;
 export type SearchQueryResult = Apollo.QueryResult<SearchQuery, SearchQueryVariables>;
+export const UpdatePageLayoutWithTabsAndWidgetsDocument = gql`
+    mutation UpdatePageLayoutWithTabsAndWidgets($id: String!, $input: UpdatePageLayoutWithTabsInput!) {
+  updatePageLayoutWithTabsAndWidgets(id: $id, input: $input) {
+    id
+    name
+    type
+    objectMetadataId
+    createdAt
+    updatedAt
+    deletedAt
+    tabs {
+      id
+      title
+      position
+      pageLayoutId
+      widgets {
+        ...PageLayoutWidgetFragment
+      }
+      createdAt
+      updatedAt
+    }
+  }
+}
+    ${PageLayoutWidgetFragmentFragmentDoc}`;
+export type UpdatePageLayoutWithTabsAndWidgetsMutationFn = Apollo.MutationFunction<UpdatePageLayoutWithTabsAndWidgetsMutation, UpdatePageLayoutWithTabsAndWidgetsMutationVariables>;
+
+/**
+ * __useUpdatePageLayoutWithTabsAndWidgetsMutation__
+ *
+ * To run a mutation, you first call `useUpdatePageLayoutWithTabsAndWidgetsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePageLayoutWithTabsAndWidgetsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePageLayoutWithTabsAndWidgetsMutation, { data, loading, error }] = useUpdatePageLayoutWithTabsAndWidgetsMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePageLayoutWithTabsAndWidgetsMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePageLayoutWithTabsAndWidgetsMutation, UpdatePageLayoutWithTabsAndWidgetsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePageLayoutWithTabsAndWidgetsMutation, UpdatePageLayoutWithTabsAndWidgetsMutationVariables>(UpdatePageLayoutWithTabsAndWidgetsDocument, options);
+      }
+export type UpdatePageLayoutWithTabsAndWidgetsMutationHookResult = ReturnType<typeof useUpdatePageLayoutWithTabsAndWidgetsMutation>;
+export type UpdatePageLayoutWithTabsAndWidgetsMutationResult = Apollo.MutationResult<UpdatePageLayoutWithTabsAndWidgetsMutation>;
+export type UpdatePageLayoutWithTabsAndWidgetsMutationOptions = Apollo.BaseMutationOptions<UpdatePageLayoutWithTabsAndWidgetsMutation, UpdatePageLayoutWithTabsAndWidgetsMutationVariables>;
 export const OnDbEventDocument = gql`
     subscription OnDbEvent($input: OnDbEventInput!) {
   onDbEvent(input: $input) {
